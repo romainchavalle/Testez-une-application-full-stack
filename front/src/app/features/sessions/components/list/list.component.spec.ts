@@ -8,6 +8,8 @@ import { SessionService } from 'src/app/services/session.service';
 import { ListComponent } from './list.component';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
+import { SessionApiService } from '../../services/session-api.service';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('ListComponent', () => {
   let component: ListComponent;
@@ -19,10 +21,13 @@ describe('ListComponent', () => {
     }
   }
 
+  // Simule une session
   const mockSessions = [
-    { id: 1, name: 'Yoga Morning', date: new Date(), description: 'A morning session.' }
+    { id: 1, name: 'Yoga Morning', date: new Date(), description: 'A morning session.' },
+    { id: 2, name: 'Yoga Morning', date: new Date(), description: 'A morning session.' }
   ];
 
+  // Simule le service qui permet de renvoyer les sessions dans le list component
   const mockSessionApiService = {
     all: () => of(mockSessions)
   };
@@ -30,8 +35,12 @@ describe('ListComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ListComponent],
-      imports: [HttpClientModule, MatCardModule, MatIconModule],
-      providers: [{ provide: SessionService, useValue: mockSessionService }]
+      // RouterTestingModule remplace RouterModule dans un environnement de test (besoin pour le query by css)
+      imports: [HttpClientModule, MatCardModule, MatIconModule, RouterTestingModule],
+      providers: [
+        { provide: SessionService, useValue: mockSessionService },
+        { provide: SessionApiService, useValue: mockSessionApiService }
+      ]
     })
       .compileComponents();
 
@@ -40,9 +49,24 @@ describe('ListComponent', () => {
     fixture.detectChanges();
   });
 
+  // Fixture.debugElement.query permet d'aller faire des query directement dans le dom pour vérifier les éléments présents
+
   it('should display the "Create" button for admin users', () => {
     const createButton = fixture.debugElement.query(By.css('button[routerLink="create"]'));
     expect(createButton).toBeTruthy();
+  });
+
+
+  // Ajout d'un data-testid dans le template pour pouvoir retrouver l'élément
+  it("should display the 'detail' button for each session", () => {
+    const detailButtons = fixture.debugElement.queryAll(By.css('button[data-testid="detail-button"]'));
+    expect(detailButtons.length).toBe(mockSessions.length);
+  });
+
+  // A cause de l'itération ngfor
+  it('should display a card for each session', () => {
+    const sessionCards = fixture.debugElement.queryAll(By.css('mat-card.item'));
+    expect(sessionCards.length).toBe(mockSessions.length);
   });
 
 });
