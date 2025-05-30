@@ -42,4 +42,12 @@ describe('MeComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+
+  it("should display user's informations", () => {
+    // Test to do
+    
+
+  });
+
 });

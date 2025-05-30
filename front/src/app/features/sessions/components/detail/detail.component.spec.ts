@@ -74,11 +74,11 @@ describe('DetailComponent', () => {
 
   it('should display session information', () => {
 
-    const nameEl = fixture.debugElement.query(By.css('h1')).nativeElement;
-    expect(nameEl.textContent).toContain(mockSession.name);
+    const name = fixture.debugElement.query(By.css('h1')).nativeElement;
+    expect(name.textContent).toContain(mockSession.name);
 
-    const descriptionEl = fixture.debugElement.query(By.css('.description')).nativeElement;
-    expect(descriptionEl.textContent).toContain(mockSession.description);
+    const description = fixture.debugElement.query(By.css('.description')).nativeElement;
+    expect(description.textContent).toContain(mockSession.description);
   });
 
 
