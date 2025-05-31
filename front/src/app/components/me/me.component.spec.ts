@@ -1,16 +1,17 @@
 import { HttpClientModule } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SessionService } from 'src/app/services/session.service';
 
 import { MeComponent } from './me.component';
 import { of } from 'rxjs';
 import { UserService } from 'src/app/services/user.service';
 import { By } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 describe('MeComponent', () => {
   let component: MeComponent;
@@ -20,7 +21,8 @@ describe('MeComponent', () => {
     sessionInformation: {
       admin: true,
       id: 1
-    }
+    },
+    logOut: jest.fn()
   }
 
   const mockUser = {
@@ -36,8 +38,17 @@ describe('MeComponent', () => {
 
   const mockUserService = {
     getById: jest.fn().mockReturnValue(of(mockUser)),
+    delete: jest.fn().mockReturnValue(of({})),
   }
 
+  const routerMock = {
+    navigate: jest.fn(),
+    url: ''
+  }
+
+  const mockSnackBar = {
+    open: jest.fn()
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -52,7 +63,9 @@ describe('MeComponent', () => {
       ],
       providers: [
         { provide: SessionService, useValue: mockSessionService},
-        { provide: UserService, useValue: mockUserService}
+        { provide: UserService, useValue: mockUserService},
+        { provide: Router, useValue: routerMock },
+        { provide: MatSnackBar, useValue: mockSnackBar },
       ],
     })
       .compileComponents();
@@ -85,6 +98,23 @@ describe('MeComponent', () => {
     expect(createdAtEl.textContent).toContain(mockUser.createdAt);
     expect(updatedAtEl.textContent).toContain(mockUser.updatedAt);
 
+  });
+
+  it('should call delete, show a snackbar, logout, and navigate to home', () => {
+    // Appel de la méthode
+    component.delete();
+
+    // Vérifie que userService.delete a été appelé avec l'ID utilisateur
+    expect(mockUserService.delete).toHaveBeenCalledTimes(1);
+
+    // Vérifie que le snackbar a été ouvert avec le bon message
+    expect(mockSnackBar.open).toHaveBeenCalledTimes(1);
+
+    // // Vérifie que la session a été déconnectée
+    expect(mockSessionService.logOut).toHaveBeenCalled();
+
+    // Vérifie que la navigation a été redirigée vers la page d'accueil
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/']);
   });
 
 });

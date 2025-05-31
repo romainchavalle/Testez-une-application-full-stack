@@ -1,11 +1,10 @@
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule, } from '@angular/router/testing';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { expect } from '@jest/globals';
 import { SessionService } from '../../../../services/session.service';
-
+import { RouterTestingModule } from '@angular/router/testing';
 import { DetailComponent } from './detail.component';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
@@ -13,6 +12,7 @@ import { SessionApiService } from '../../services/session-api.service';
 import { TeacherService } from '../../../../services/teacher.service';
 import { MatCardModule, MatCardTitle } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute, Router } from '@angular/router';
 
 
 describe('DetailComponent', () => {
@@ -45,6 +45,28 @@ describe('DetailComponent', () => {
     lastName: 'Smith'
   };
 
+  const mockSessionApiService = {
+    detail: jest.fn(() => of(mockSession)),
+    delete: jest.fn(() => of({})),
+    participate: jest.fn(() => of({})),
+    unParticipate: jest.fn(() => of({}))
+  };
+
+  const mockTeacherService = {
+    detail: jest.fn(() => of(mockTeacher))
+  };
+
+  const mockSnackBar = {
+    open: jest.fn()
+  };
+
+  const mockRouter = {
+    navigate: jest.fn(),
+    url: ''
+  };
+
+  const activatedRouteMock = { snapshot: { paramMap: { get: jest.fn() } } }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -56,9 +78,13 @@ describe('DetailComponent', () => {
         MatIconModule
       ],
       declarations: [DetailComponent],
-      providers: [{ provide: SessionService, useValue: mockSessionService},
-        {provide: SessionApiService, useValue: { detail: () => of(mockSession)}},
-        { provide: TeacherService, useValue: { detail: () => of(mockTeacher)}}
+      providers: [
+        { provide: SessionService, useValue: mockSessionService },
+        { provide: SessionApiService, useValue: mockSessionApiService },
+        { provide: TeacherService, useValue: mockTeacherService },
+        { provide: MatSnackBar, useValue: mockSnackBar },
+        { provide: Router, useValue: mockRouter },
+        { provide: ActivatedRoute, useValue: activatedRouteMock }
       ],
     })
       .compileComponents();
@@ -88,5 +114,13 @@ describe('DetailComponent', () => {
     expect(deleteBtn.nativeElement.textContent).toContain('delete');
 
   });
+
+  it('should delete the session, show snackbar and navigate', () => {
+  component.delete();
+
+  expect(mockSessionApiService.delete).toHaveBeenCalledWith(component.sessionId);
+  expect(mockSnackBar.open).toHaveBeenCalledWith('Session deleted !', 'Close', { duration: 3000 });
+  expect(mockRouter.navigate).toHaveBeenCalledWith(['sessions']);
+});
 
 });
