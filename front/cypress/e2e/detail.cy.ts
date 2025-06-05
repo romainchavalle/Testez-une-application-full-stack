@@ -1,27 +1,5 @@
 describe("detail spec", () => {
-  it('should display wright informations', () => {
-
-    // Mock the sessions data
-    // const mockSessions = [
-    //   {
-    //     id: 1,
-    //     name: 'Yoga du matin',
-    //     date: '2025-06-04T10:00:00Z',
-    //     description: 'Séance de yoga relaxante'
-    //   },
-    //   {
-    //     id: 2,
-    //     name: 'Pilates',
-    //     date: '2025-06-05T17:00:00Z',
-    //     description: 'Travail du centre du corps'
-    //   }
-    // ];
-
-    // // Intercept the GET request to /api/session
-    // cy.intercept('GET', '**/api/session', {
-    //   statusCode: 200,
-    //   body: mockSessions
-    // }).as('getSessions');
+  it('should display right informations', () => {
 
     // Log in
     cy.visit('/login');
@@ -54,6 +32,7 @@ describe("detail spec", () => {
     // Vérifie la présence du sous-titre avec le teacher
     cy.get('mat-card-subtitle').should('exist')
 
+    cy.get('[data-testid="delete-button"]').should('exist')
 
   })
 })
