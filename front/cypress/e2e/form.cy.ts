@@ -33,7 +33,6 @@ describe('form spec create session', () => {
     cy.get('button[type="submit"]').click();
 
 
-
     cy.location('pathname', { timeout: 10000 }).should('include', '/sessions');
 
     cy.contains('testname').should('exist');
