@@ -2,7 +2,6 @@ describe('form spec create session', () => {
   it('should create session after complete the form', () => {
 
 
-
     // Mock data for select teacher in the form
 
     const mockTeachers = [
