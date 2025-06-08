@@ -8,10 +8,8 @@ describe('Register spec', () => {
     cy.get('input[formControlName="lastName"]').type('Doe');
     cy.get('input[formControlName="password"]').type('TestPassword123');
 
-
     // submit le form
     cy.get('form').submit();
-
 
     // Vérif la redirection vers le login
     cy.url().should('include', '/login');
@@ -26,10 +24,8 @@ describe('Register spec', () => {
     cy.get('input[formControlName="lastName"]').type('Doe');
     cy.get('input[formControlName="password"]').type('TestPassword123');
 
-
     // submit le form
     cy.get('form').submit();
-
 
     // Reste sur la page
     cy.url().should('include', '/register');

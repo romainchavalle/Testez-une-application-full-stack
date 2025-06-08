@@ -26,7 +26,7 @@ describe("list spec", () => {
     // Log in
     cy.login();
 
-    // // Wait for the intercepted request
+    // Wait for the intercepted request
     cy.wait('@getSessions');
 
     // Verify the sessions are displayed
