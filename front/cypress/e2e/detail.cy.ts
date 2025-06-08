@@ -2,15 +2,8 @@ describe("detail spec", () => {
   it('should display right informations', () => {
 
     // Log in
-    cy.visit('/login');
-    cy.get('input[formControlName="email"]').type('yoga@studio.com');
-    cy.get('input[formControlName="password"]').type('test!1234');
-    cy.get('button[type="submit"]').click();
-    cy.get('button[type="submit"]').click();
-
-    // Verify login was successful
-    cy.url().should('include', '/sessions');
-
+    cy.login();
+    
     // click sur le detail
     cy.get('[data-testid="detail-button"]').first().click();
 

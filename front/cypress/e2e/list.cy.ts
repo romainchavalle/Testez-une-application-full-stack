@@ -24,13 +24,7 @@ describe("list spec", () => {
     }).as('getSessions');
 
     // Log in
-    cy.visit('/login');
-    cy.get('input[formControlName="email"]').type('yoga@studio.com');
-    cy.get('input[formControlName="password"]').type('test!1234');
-    cy.get('button[type="submit"]').click();
-
-    // Verify login was successful
-    cy.url().should('include', '/sessions');
+    cy.login();
 
     // // Wait for the intercepted request
     cy.wait('@getSessions');
