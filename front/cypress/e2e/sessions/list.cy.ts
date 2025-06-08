@@ -31,5 +31,15 @@ describe("list spec", () => {
 
     // Verify the sessions are displayed
     cy.get('.item').should('have.length', mockSessions.length);
+
   });
+
+  it("should display create & detail button for admin user", () => {
+    // Login
+    cy.login();
+
+    // Verify buttons are displayed
+    cy.get('[data-testid="create-button"]').should('exist');
+    cy.get('[data-testid="detail-button"]').should('exist');
+  })
 });
