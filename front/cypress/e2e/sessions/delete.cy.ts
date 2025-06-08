@@ -1,6 +1,5 @@
-describe("detail spec", () => {
-  it('should display right informations', () => {
-
+describe("delete spec", () => {
+  it('should delete the session selected', () => {
     // Mock the sessions data
     const mockSessions = [
       {
@@ -30,29 +29,23 @@ describe("detail spec", () => {
     // Wait for the intercepted request
     cy.wait('@getSessions');
 
+    // verify first session is present
+    cy.contains('Yoga du matin').should('exist');
+
     // click sur le detail
     cy.get('[data-testid="detail-button"]').first().click();
 
     // Vérifier page detail
     cy.url().should('include', '/detail');
 
+    // Click on the delete btn
+    cy.get('[data-testid="delete-button"]').click;
 
-    // vérifier éléments displayed
+    // Verify redirect url
+    cy.url().should('include', '/sessions');
 
-    // Vérifie que le mat-card existe
-    cy.get('mat-card').should('exist');
+    // Verify that the session is not present in the DOM anymore
+    cy.contains('Yoga du matin').should('not.exist');
 
-    // Vérifie le titre (nom de la session, en titlecase)
-    cy.get('mat-card-title h1').should('exist').and('not.be.empty');
-
-    // Bouton back avec icône arrow_back
-    cy.get('button mat-icon').contains('arrow_back').should('exist');
-
-    // Vérifie la présence du sous-titre avec le teacher
-    cy.get('mat-card-subtitle').should('exist')
-
-    // Vérifie la présence du delete btn
-    cy.get('[data-testid="delete-button"]').should('exist')
-
-  })
-})
+  });
+});

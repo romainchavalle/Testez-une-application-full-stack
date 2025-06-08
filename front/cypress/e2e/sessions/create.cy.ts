@@ -5,21 +5,21 @@ describe('form spec create session', () => {
     // Mock data for select teacher in the form
 
     const mockTeachers = [
-    {
-      id: 1,
-      firstName: 'Jean',
-      lastName: 'Dupont',
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z'
-    },
-    {
-      id: 2,
-      firstName: 'Marie',
-      lastName: 'Curie',
-      createdAt: '2024-01-02T00:00:00Z',
-      updatedAt: '2024-01-02T00:00:00Z'
-    }
-  ]
+      {
+        id: 1,
+        firstName: 'Jean',
+        lastName: 'Dupont',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z'
+      },
+      {
+        id: 2,
+        firstName: 'Marie',
+        lastName: 'Curie',
+        createdAt: '2024-01-02T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z'
+      }
+    ]
 
 
     cy.intercept('GET', '**/api/teacher', {

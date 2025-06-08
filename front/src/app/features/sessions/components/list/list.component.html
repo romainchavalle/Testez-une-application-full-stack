@@ -30,6 +30,7 @@
             <span class="ml1">Detail</span>
           </button>
           <button *ngIf="user!.admin" mat-raised-button color="primary"
+                  data-testid="edit-button"
                   [routerLink]="['update',session.id]">
             <mat-icon>edit</mat-icon>
             <span class="ml1">Edit</span>
