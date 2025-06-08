@@ -81,7 +81,9 @@ describe('MeComponent', () => {
 
 
   it("should display user's informations", () => {
-    // Test to do
+
+
+    // Vérifier que les éléments affichés correspondent bien à la donnée mockée.
 
     const nameEl = fixture.debugElement.query(By.css('p:nth-of-type(1)')).nativeElement;
     const emailEl = fixture.debugElement.query(By.css('p:nth-of-type(2)')).nativeElement;
@@ -101,16 +103,17 @@ describe('MeComponent', () => {
   });
 
   it('should call delete, show a snackbar, logout, and navigate to home', () => {
-    // Appel de la méthode
+    // When
     component.delete();
 
+    // Then
     // Vérifie que userService.delete a été appelé avec l'ID utilisateur
     expect(mockUserService.delete).toHaveBeenCalledTimes(1);
 
     // Vérifie que le snackbar a été ouvert avec le bon message
     expect(mockSnackBar.open).toHaveBeenCalledTimes(1);
 
-    // // Vérifie que la session a été déconnectée
+    // Vérifie que la session a été déconnectée
     expect(mockSessionService.logOut).toHaveBeenCalled();
 
     // Vérifie que la navigation a été redirigée vers la page d'accueil

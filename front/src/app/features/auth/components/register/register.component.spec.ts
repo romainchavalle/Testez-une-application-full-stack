@@ -57,6 +57,7 @@ describe('RegisterComponent', () => {
 
 
   it('should register successfully', () => {
+    // Given
     jest.spyOn(authServiceMock, 'register').mockReturnValue(of(void 0));
 
     const credentials = {
@@ -68,10 +69,10 @@ describe('RegisterComponent', () => {
 
     component.form.setValue(credentials);
 
+    // When
     component.submit();
 
-    // Expect
-
+    // Then
     expect(authServiceMock.register).toHaveBeenCalledTimes(1);
     expect(authServiceMock.register).toHaveBeenCalledWith(credentials);
 
@@ -81,6 +82,7 @@ describe('RegisterComponent', () => {
   });
 
   it('should not register without credentials', () => {
+    // Given
     jest.spyOn(authServiceMock, 'register').mockReturnValue(throwError(() => new Error('Credentials missing')));
 
     const credentials = {
@@ -92,10 +94,10 @@ describe('RegisterComponent', () => {
 
     component.form.setValue(credentials);
 
+    // When
     component.submit();
 
-    // Expect
-
+    // Then
     expect(authServiceMock.register).toHaveBeenCalledTimes(1);
     expect(authServiceMock.register).toHaveBeenCalledWith(credentials);
 
@@ -104,29 +106,27 @@ describe('RegisterComponent', () => {
   });
 
   it('should mark form as invalid if required fields are missing', () => {
-  // Given : tous les champs sont vides
-  const emptyForm = {
-    email: '',
-    firstName: '',
-    lastName: '',
-    password: ''
-  };
+    // Given : tous les champs sont vides
+    const emptyForm = {
+      email: '',
+      firstName: '',
+      lastName: '',
+      password: ''
+    };
 
-  component.form.setValue(emptyForm);
+    component.form.setValue(emptyForm);
 
-  // When
-  const isValid = component.form.valid;
+    // When
+    const isValid = component.form.valid;
 
-  // Then
-  expect(isValid).toBe(false); // le formulaire est invalide
-  expect(component.form.get('email')?.hasError('required')).toBe(true);
-  expect(component.form.get('firstName')?.hasError('required')).toBe(true);
-  expect(component.form.get('lastName')?.hasError('required')).toBe(true);
-  expect(component.form.get('password')?.hasError('required')).toBe(true);
+    // Then
+    expect(isValid).toBe(false); // le formulaire est invalide
+    expect(component.form.get('email')?.hasError('required')).toBe(true);
+    expect(component.form.get('firstName')?.hasError('required')).toBe(true);
+    expect(component.form.get('lastName')?.hasError('required')).toBe(true);
+    expect(component.form.get('password')?.hasError('required')).toBe(true);
 
-  // Pas de tentative d'appel du service
-  expect(authServiceMock.register).not.toHaveBeenCalled();
-});
-
-
+    // Pas de tentative d'appel du service
+    expect(authServiceMock.register).not.toHaveBeenCalled();
+  });
 });

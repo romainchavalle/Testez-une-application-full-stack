@@ -78,7 +78,7 @@ describe('FormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should successfully submit the form', () => {
+  it('should successfully create session', () => {
     // Given
     const session = {
       name: 'Session 1',

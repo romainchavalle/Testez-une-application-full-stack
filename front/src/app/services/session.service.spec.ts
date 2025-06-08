@@ -34,15 +34,6 @@ describe('SessionService', () => {
     expect(service.sessionInformation).toEqual(mockUser);
   });
 
-  // it('should emit true when logging in', (done) => {
-  //   service.$isLogged().subscribe((isLogged) => {
-  //     expect(isLogged).toBe(true);
-  //     done();
-  //   });
-
-  //   service.logIn(mockUser);
-  // });
-
   it('should log out correctly', () => {
     service.logIn(mockUser);
     service.logOut();
@@ -50,15 +41,4 @@ describe('SessionService', () => {
     expect(service.isLogged).toBe(false);
     expect(service.sessionInformation).toBeUndefined();
   });
-
-  // it('should emit false when logging out', (done) => {
-  //   service.logIn(mockUser);
-
-  //   service.$isLogged().subscribe((isLogged) => {
-  //     expect(isLogged).toBe(false);
-  //     done();
-  //   });
-
-  //   service.logOut();
-  // });
 });

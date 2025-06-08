@@ -39,8 +39,10 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
 
+    // When
     app.logout();
 
+    // Then
     expect(sessionServiceMock.logOut).toHaveBeenCalled();
   })
 });

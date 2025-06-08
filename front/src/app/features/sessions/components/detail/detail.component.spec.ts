@@ -99,28 +99,31 @@ describe('DetailComponent', () => {
   });
 
   it('should display session information', () => {
-
+    // When
     const name = fixture.debugElement.query(By.css('h1')).nativeElement;
-    expect(name.textContent).toContain(mockSession.name);
-
     const description = fixture.debugElement.query(By.css('.description')).nativeElement;
+
+    // Then
+    expect(name.textContent).toContain(mockSession.name);
     expect(description.textContent).toContain(mockSession.description);
   });
 
 
   it('should display the delete button for admin user', () => {
-
+    // When
     const deleteBtn = fixture.debugElement.query(By.css('button[color="warn"] mat-icon'));
-    expect(deleteBtn.nativeElement.textContent).toContain('delete');
 
+    // Then
+    expect(deleteBtn.nativeElement.textContent).toContain('delete');
   });
 
   it('should delete the session, show snackbar and navigate', () => {
-  component.delete();
+    // When
+    component.delete();
 
-  expect(mockSessionApiService.delete).toHaveBeenCalledWith(component.sessionId);
-  expect(mockSnackBar.open).toHaveBeenCalledWith('Session deleted !', 'Close', { duration: 3000 });
-  expect(mockRouter.navigate).toHaveBeenCalledWith(['sessions']);
-});
-
+    // Then
+    expect(mockSessionApiService.delete).toHaveBeenCalledWith(component.sessionId);
+    expect(mockSnackBar.open).toHaveBeenCalledWith('Session deleted !', 'Close', { duration: 3000 });
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['sessions']);
+  });
 });

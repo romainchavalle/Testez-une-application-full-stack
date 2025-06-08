@@ -35,7 +35,6 @@ describe('ListComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ListComponent],
-      // RouterTestingModule remplace RouterModule dans un environnement de test (besoin pour le query by css)
       imports: [HttpClientModule, MatCardModule, MatIconModule, RouterTestingModule],
       providers: [
         { provide: SessionService, useValue: mockSessionService },
@@ -49,23 +48,29 @@ describe('ListComponent', () => {
     fixture.detectChanges();
   });
 
-  // Fixture.debugElement.query permet d'aller faire des query directement dans le dom pour vérifier les éléments présents
-
   it('should display the "Create" button for admin users', () => {
+    // When
     const createButton = fixture.debugElement.query(By.css('button[routerLink="create"]'));
+
+    // Then
     expect(createButton).toBeTruthy();
   });
 
 
-  // Ajout d'un data-testid dans le template pour pouvoir retrouver l'élément
   it("should display the 'detail' button for each session", () => {
+    // When
     const detailButtons = fixture.debugElement.queryAll(By.css('button[data-testid="detail-button"]'));
+
+    // Then
     expect(detailButtons.length).toBe(mockSessions.length);
   });
 
-  // A cause de l'itération ngfor
+
   it('should display a card for each session', () => {
+    // When
     const sessionCards = fixture.debugElement.queryAll(By.css('mat-card.item'));
+
+    // Then
     expect(sessionCards.length).toBe(mockSessions.length);
   });
 
