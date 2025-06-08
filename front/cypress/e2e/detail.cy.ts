@@ -15,7 +15,7 @@ describe("detail spec", () => {
     cy.get('[data-testid="detail-button"]').first().click();
 
     // Vérifier page detail
-    cy.location('pathname', { timeout: 10000 }).should('include', '/detail');
+    cy.url().should('include', '/detail');
 
 
     // vérifier éléments displayed

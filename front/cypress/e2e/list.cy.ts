@@ -28,7 +28,6 @@ describe("list spec", () => {
     cy.get('input[formControlName="email"]').type('yoga@studio.com');
     cy.get('input[formControlName="password"]').type('test!1234');
     cy.get('button[type="submit"]').click();
-    cy.get('button[type="submit"]').click();
 
     // Verify login was successful
     cy.url().should('include', '/sessions');

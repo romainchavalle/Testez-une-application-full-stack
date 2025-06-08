@@ -6,18 +6,16 @@ describe('form spec create session', () => {
     cy.get('input[formControlName="email"]').type('yoga@studio.com');
     cy.get('input[formControlName="password"]').type('test!1234');
     cy.get('button[type="submit"]').click();
-    cy.get('button[type="submit"]').click();
 
     // Verify login was successful
     cy.url().should('include', '/sessions');
-
 
     // get the create button and click on it to go on create form
     cy.get('[data-testid="create-button"]').should('exist');
 
     cy.get('[data-testid="create-button"]').click();
 
-    cy.location('pathname', { timeout: 10000 }).should('include', '/create');
+    cy.url().should('include', '/create');
 
     // Complete the form then submit
 
@@ -32,8 +30,7 @@ describe('form spec create session', () => {
     cy.get('textarea[formControlName="description"]').type('testdescription123456879');
     cy.get('button[type="submit"]').click();
 
-
-    cy.location('pathname', { timeout: 10000 }).should('include', '/sessions');
+    cy.url().should('include', '/sessions');
 
     cy.contains('testname').should('exist');
   })
