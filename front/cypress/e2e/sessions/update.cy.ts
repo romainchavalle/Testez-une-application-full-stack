@@ -107,4 +107,48 @@ describe('form spec edit session', () => {
     cy.contains('testnamemodified').should('exist');
 
   });
+
+  it('should not submit when missing input on update', ()=> {
+    // Mock the sessions data
+    const originalSessions = [
+      {
+        id: 1,
+        name: 'Yoga du matin',
+        date: '2025-06-04T10:00:00Z',
+        description: 'Séance de yoga relaxante'
+      },
+      {
+        id: 2,
+        name: 'Pilates',
+        date: '2025-06-05T17:00:00Z',
+        description: 'Travail du centre du corps'
+      }
+    ];
+
+    cy.intercept('GET', '**/api/session', (req) => {
+      req.reply({
+        statusCode: 200,
+        body: originalSessions
+      });
+    }).as('getSessions');
+
+    // Log in
+    cy.login();
+
+    // Wait for the intercepted request
+    cy.wait('@getSessions');
+
+    // click sur le detail
+    cy.get('[data-testid="edit-button"]').first().click();
+
+    // Vérifier page detail
+    cy.url().should('include', '/update');
+
+    // clear le name
+    cy.get('input[formControlName="name"]').clear()
+
+    // Vérifier le disable
+    cy.get('button[type="submit"]').should('be.disabled');
+
+  });
 });
