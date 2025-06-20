@@ -1,7 +1,10 @@
 package com.openclassrooms.starterjwt.services;
 
+import com.openclassrooms.starterjwt.exception.NotFoundException;
 import com.openclassrooms.starterjwt.models.Session;
+import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.SessionRepository;
+import com.openclassrooms.starterjwt.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,18 +14,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SessionServiceTest {
 
     @Mock
     private SessionRepository sessionRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private SessionService sessionService;
@@ -91,7 +94,6 @@ public class SessionServiceTest {
     void testGetByIdFound() {
         // Arrange
         Session session = createFakeSession(1L, "Found");
-
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
 
         // Act
@@ -136,6 +138,60 @@ public class SessionServiceTest {
         verify(sessionRepository).save(session);
         assertEquals(1L, session.getId());
     }
+
+    @Test
+    void shouldAddUserToSession() {
+        // Arrange
+        Session session = createFakeSession(1L, "Participate");
+        User user = new User();
+        user.setId(1L);
+
+        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Act
+        sessionService.participate(1L, 1L);
+
+        // Arrange
+        assertTrue(session.getUsers().contains(user));
+        verify(sessionRepository).save(session);
+    }
+
+    @Test
+    void shouldThrowNotFoundException_whenSessionDoesNotExist() {
+
+        when(sessionRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> sessionService.participate(1L, 1L));
+        verify(sessionRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldRemoveUserFromSession() {
+        // Arrange
+        Session session = createFakeSession(1L, "NoLongerParticipate");
+        User user = new User();
+        user.setId(1L);
+        session.getUsers().add(user);
+
+        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
+
+        // Act
+        sessionService.noLongerParticipate(1L, 1L);
+
+        // Assert
+        assertFalse(session.getUsers().contains(user));
+        verify(sessionRepository).save(session);
+    }
+
+    @Test
+    void shouldThrowNotFoundException_noLongerParticipate() {
+        when(sessionRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> sessionService.noLongerParticipate(100L, 1L));
+        verify(sessionRepository, never()).save(any());
+    }
+
 
 
 }
