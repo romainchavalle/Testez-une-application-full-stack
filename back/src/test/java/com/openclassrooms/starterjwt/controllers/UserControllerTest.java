@@ -1,5 +1,6 @@
 package com.openclassrooms.starterjwt.controllers;
 
+import com.openclassrooms.starterjwt.YogaAppSpringBootTestFramework;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc(addFilters = false)
 @Transactional
-public class UserControllerTest {
+public class UserControllerTest extends YogaAppSpringBootTestFramework {
 
     @Autowired
     UserRepository userRepository;
@@ -48,22 +49,24 @@ public class UserControllerTest {
 
     }
 
-//    @Test
-//    public void deleteUser() throws Exception {
-//        User user = User.builder()
-//                .email("test@oc.com")
-//                .lastName("Durand")
-//                .firstName("Marie")
-//                .password("password")
-//                .build();
-//        user = userRepository.save(user);
-//        Long userId = user.getId();
-//
-//        assertTrue(userRepository.findById(userId).isPresent());
-//
-//        mockMvc.perform(delete("/api/user/"+ user.getId()))
-//                .andExpect(status().isOk());
-//
-//        assertFalse(userRepository.findById(userId).isPresent());
-//    }
+    @Test
+    public void deleteUser() throws Exception {
+        User user = User.builder()
+                .email("test@oc.com")
+                .lastName("Durand")
+                .firstName("Marie")
+                .password("password")
+                .build();
+        user = userRepository.save(user);
+        Long userId = user.getId();
+
+        assertTrue(userRepository.findById(userId).isPresent());
+
+        mockMvc.perform(delete("/api/user/"+ user.getId())
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
+                .andExpect(status().isOk());
+
+        assertFalse(userRepository.findById(userId).isPresent());
+    }
 }
