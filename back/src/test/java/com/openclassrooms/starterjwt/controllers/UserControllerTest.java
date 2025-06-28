@@ -19,9 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@ExtendWith(SpringExtension.class)
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @Transactional
 public class UserControllerTest extends YogaAppSpringBootTestFramework {
 
@@ -41,7 +39,9 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
                 .build();
         user = userRepository.save(user);
 
-        mockMvc.perform(get("/api/user/"+ user.getId()))
+        mockMvc.perform(get("/api/user/"+ user.getId())
+                .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("test@oc.com"))
                 .andExpect(jsonPath("$.lastName").value("Durand"))
