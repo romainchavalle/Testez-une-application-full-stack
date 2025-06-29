@@ -29,7 +29,7 @@ public class AuthControllerTest extends YogaAppSpringBootTestFramework {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
+
     @Test
     public void registerUser_Success() throws Exception {
         SignupRequest signup = new SignupRequest();
@@ -59,6 +59,7 @@ public class AuthControllerTest extends YogaAppSpringBootTestFramework {
                 .firstName("Charlie")
                 .lastName("Brown")
                 .password(passwordEncoder.encode("mypassword"))
+                .admin(false)
                 .build();
         userRepository.save(u);
 
