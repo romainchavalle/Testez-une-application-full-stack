@@ -75,6 +75,20 @@ public class AuthControllerTest extends YogaAppSpringBootTestFramework {
                 .andExpect(jsonPath("$.id").value(u.getId()))
                 .andExpect(jsonPath("$.username").value("login@example.com"))
                 .andExpect(jsonPath("$.firstName").value("Charlie"))
-                .andExpect(jsonPath("$.lastName").value("Brown"));
+                .andExpect(jsonPath("$.lastName").value("Brown"))
+                .andExpect(jsonPath("$.admin").value(false));
+    }
+
+    @Test
+    public void authenticateUser_BadCredentials_Unauthorized() throws Exception {
+        // Pas d'utilisateur en base ou mauvais mot de passe
+        LoginRequest login = new LoginRequest();
+        login.setEmail("nouser@example.com");
+        login.setPassword("wrong");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(getObjectMapper().writeValueAsString(login)))
+                .andExpect(status().isUnauthorized());
     }
 }
