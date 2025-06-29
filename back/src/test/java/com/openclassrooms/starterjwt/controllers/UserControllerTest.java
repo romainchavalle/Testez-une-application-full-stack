@@ -4,13 +4,10 @@ import com.openclassrooms.starterjwt.YogaAppSpringBootTestFramework;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.UserRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,8 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
-@Transactional
+
 public class UserControllerTest extends YogaAppSpringBootTestFramework {
 
     @Autowired
@@ -29,13 +25,17 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Test
     public void findById() throws Exception {
         User user = User.builder()
-                .email("test@oc.com")
-                .lastName("Durand")
-                .firstName("Marie")
-                .password("password")
+                .email("admin@example.com")
+                .lastName("Doe")
+                .firstName("John")
+                .password(passwordEncoder.encode("password"))
+                .admin(true)
                 .build();
         user = userRepository.save(user);
 
@@ -43,19 +43,20 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
                 .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("test@oc.com"))
-                .andExpect(jsonPath("$.lastName").value("Durand"))
-                .andExpect(jsonPath("$.firstName").value("Marie"));
+                .andExpect(jsonPath("$.email").value("admin@example.com"))
+                .andExpect(jsonPath("$.lastName").value("Doe"))
+                .andExpect(jsonPath("$.firstName").value("John"));
 
     }
 
     @Test
     public void deleteUser() throws Exception {
         User user = User.builder()
-                .email("test@oc.com")
-                .lastName("Durand")
-                .firstName("Marie")
-                .password("password")
+                .email("admin@example.com")
+                .lastName("Doe")
+                .firstName("John")
+                .password(passwordEncoder.encode("password"))
+                .admin(true)
                 .build();
         user = userRepository.save(user);
         Long userId = user.getId();

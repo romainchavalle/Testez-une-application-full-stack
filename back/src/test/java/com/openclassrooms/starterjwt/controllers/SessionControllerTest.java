@@ -1,6 +1,7 @@
 package com.openclassrooms.starterjwt.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openclassrooms.starterjwt.YogaAppSpringBootTestFramework;
 import com.openclassrooms.starterjwt.dto.SessionDto;
 import com.openclassrooms.starterjwt.models.Session;
 import com.openclassrooms.starterjwt.models.Teacher;
@@ -8,16 +9,14 @@ import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.SessionRepository;
 import com.openclassrooms.starterjwt.repository.TeacherRepository;
 import com.openclassrooms.starterjwt.repository.UserRepository;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -33,11 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.springframework.test.context.ActiveProfiles;
 
 
-@SpringBootTest
-@ExtendWith(SpringExtension.class)
-@AutoConfigureMockMvc(addFilters = false)
-@Transactional
-public class SessionControllerTest {
+public class SessionControllerTest extends YogaAppSpringBootTestFramework {
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,6 +45,9 @@ public class SessionControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private Session savedSession;
     private Teacher savedTeacher;
@@ -65,7 +63,9 @@ public class SessionControllerTest {
                 .build();
         savedSession = sessionRepository.save(session);
 
-        mockMvc.perform(get("/api/session"))
+        mockMvc.perform(get("/api/session")
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[-1].name").value("Test Session"))
                 .andExpect(jsonPath("$[-1].description").value("Ceci est une session de test"));
@@ -82,7 +82,9 @@ public class SessionControllerTest {
                 .build();
         savedSession = sessionRepository.save(session);
 
-        mockMvc.perform(get("/api/session/" + savedSession.getId()))
+        mockMvc.perform(get("/api/session/" + savedSession.getId())
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Test Session"))
                 .andExpect(jsonPath("$.description").value("Ceci est une session de test"));
@@ -107,8 +109,10 @@ public class SessionControllerTest {
 
         // WHEN : appel POST
         mockMvc.perform(post("/api/session")
+                .header("Authorization", "Bearer " + getAdminAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
+                .content(objectMapper.writeValueAsString(dto))
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
@@ -149,7 +153,9 @@ public class SessionControllerTest {
         mockMvc.perform(
                 put("/api/session/" + savedSession.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedDto)))
+                        .content(objectMapper.writeValueAsString(updatedDto))
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedSession.getId()))
                 .andExpect(jsonPath("$.name").value("Session Modifiée"))
@@ -174,7 +180,9 @@ public class SessionControllerTest {
 
         assertTrue(sessionRepository.findById(sessionId).isPresent());
 
-        mockMvc.perform(delete("/api/session/" + sessionId))
+        mockMvc.perform(delete("/api/session/" + sessionId)
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
                 .andExpect(status().isOk());
 
         assertFalse(sessionRepository.findById(sessionId).isPresent());
@@ -184,10 +192,11 @@ public class SessionControllerTest {
     void shouldAddUserToSession() throws Exception {
         // GIVEN : Un utilisateur
         User user = User.builder()
-                .email("test@oc.com")
-                .lastName("Durand")
-                .firstName("Marie")
-                .password("password")
+                .email("admin@example.com")
+                .lastName("Doe")
+                .firstName("John")
+                .password(passwordEncoder.encode("password"))
+                .admin(true)
                 .build();
         user = userRepository.save(user);
 
@@ -201,7 +210,9 @@ public class SessionControllerTest {
         session = sessionRepository.save(session);
 
         // WHEN : l’utilisateur participe
-        mockMvc.perform(post("/api/session/" + session.getId() + "/participate/" + user.getId()))
+        mockMvc.perform(post("/api/session/" + session.getId() + "/participate/" + user.getId())
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
                 .andExpect(status().isOk());
 
         // THEN : l’utilisateur est bien dans la session
@@ -218,10 +229,11 @@ public class SessionControllerTest {
     void shouldRemoveUserFromSession() throws Exception {
         // Crée et sauve un utilisateur
         User user = User.builder()
-                .email("test@example.com")
-                .firstName("Test")
-                .lastName("User")
-                .password("password")
+                .email("admin@example.com")
+                .lastName("Doe")
+                .firstName("John")
+                .password(passwordEncoder.encode("password"))
+                .admin(true)
                 .build();
         user = userRepository.save(user);
 
@@ -239,7 +251,9 @@ public class SessionControllerTest {
         assertEquals(1, sessionRepository.findById(session.getId()).get().getUsers().size());
 
         // Appelle le DELETE /api/session/{id}/participate/{userId}
-        mockMvc.perform(delete("/api/session/" + session.getId() + "/participate/" + user.getId()))
+        mockMvc.perform(delete("/api/session/" + session.getId() + "/participate/" + user.getId())
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
                 .andExpect(status().isOk());
 
         // Recharge la session pour vérifier que le user a bien été retiré

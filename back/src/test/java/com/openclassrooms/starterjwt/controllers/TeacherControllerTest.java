@@ -1,5 +1,6 @@
 package com.openclassrooms.starterjwt.controllers;
 
+import com.openclassrooms.starterjwt.YogaAppSpringBootTestFramework;
 import com.openclassrooms.starterjwt.models.Teacher;
 import com.openclassrooms.starterjwt.repository.TeacherRepository;
 import org.junit.jupiter.api.Test;
@@ -15,11 +16,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@ExtendWith(SpringExtension.class)
-@AutoConfigureMockMvc(addFilters = false)
-@Transactional
-public class TeacherControllerTest {
+
+public class TeacherControllerTest extends YogaAppSpringBootTestFramework {
+
     @Autowired
     MockMvc mockMvc;
 
@@ -29,14 +28,16 @@ public class TeacherControllerTest {
     private Teacher savedTeacher;
 
     @Test
-    public void getAllTeacher() throws Exception {
+    public void getAllTeacher()  throws Exception {
         Teacher teacher = Teacher.builder()
                 .firstName("Jean")
                 .lastName("Dupont")
                 .build();
         savedTeacher = teacherRepository.save(teacher);
 
-        mockMvc.perform(get("/api/teacher"))
+        mockMvc.perform(get("/api/teacher")
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[-1].firstName").value("Jean"))
                 .andExpect(jsonPath("$[-1].lastName").value("Dupont"));
@@ -51,7 +52,9 @@ public class TeacherControllerTest {
                 .build();
         savedTeacher = teacherRepository.save(teacher);
 
-        mockMvc.perform(get("/api/teacher/" + savedTeacher.getId()))
+        mockMvc.perform(get("/api/teacher/" + savedTeacher.getId())
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Jean"))
                 .andExpect(jsonPath("$.lastName").value("Dupont"));
