@@ -22,7 +22,7 @@ class UserMapperImplTest {
 
     @Test
     void shouldMapDtoToEntity() {
-        // Préparation du DTO complet
+        // Arrange
         UserDto dto = new UserDto();
         dto.setId(1L);
         dto.setEmail("test@example.com");
@@ -33,10 +33,10 @@ class UserMapperImplTest {
         dto.setCreatedAt(LocalDateTime.of(2025, 6, 29, 10, 0));
         dto.setUpdatedAt(LocalDateTime.of(2025, 6, 29, 12, 0));
 
-        // Mapping
+        // Act
         User entity = userMapper.toEntity(dto);
 
-        // Assertions
+        // Assert
         assertNotNull(entity);
         assertEquals(dto.getId(), entity.getId());
         assertEquals(dto.getEmail(), entity.getEmail());
@@ -50,7 +50,7 @@ class UserMapperImplTest {
 
     @Test
     void shouldMapEntityToDto() {
-        // Préparation de l'Entity complète
+        // Arrange
         User user = User.builder()
                 .id(2L)
                 .email("jane@domain.com")
@@ -62,10 +62,10 @@ class UserMapperImplTest {
                 .updatedAt(LocalDateTime.of(2025, 1, 15, 9, 45))
                 .build();
 
-        // Mapping
+        // Act
         UserDto dto = userMapper.toDto(user);
 
-        // Assertions
+        // Assert
         assertNotNull(dto);
         assertEquals(user.getId(), dto.getId());
         assertEquals(user.getEmail(), dto.getEmail());
@@ -79,6 +79,7 @@ class UserMapperImplTest {
 
     @Test
     void shouldMapDtoListToEntityList() {
+        // Arrange
         UserDto dto = new UserDto();
         dto.setId(3L);
         dto.setEmail("list@example.com");
@@ -92,8 +93,10 @@ class UserMapperImplTest {
         List<UserDto> dtoList = new ArrayList<>();
         dtoList.add(dto);
 
+        // Act
         List<User> users = userMapper.toEntity(dtoList);
 
+        // Assert
         assertNotNull(users);
         assertEquals(1, users.size());
         User u = users.get(0);
@@ -103,6 +106,7 @@ class UserMapperImplTest {
 
     @Test
     void shouldMapEntityListToDtoList() {
+        // Arrange
         User user = User.builder()
                 .id(4L)
                 .email("list2@example.com")
@@ -117,8 +121,10 @@ class UserMapperImplTest {
         List<User> userList = new ArrayList<>();
         userList.add(user);
 
+        // Act
         List<UserDto> dtos = userMapper.toDto(userList);
 
+        // Assert
         assertNotNull(dtos);
         assertEquals(1, dtos.size());
         UserDto d = dtos.get(0);
@@ -128,6 +134,7 @@ class UserMapperImplTest {
 
     @Test
     void shouldReturnNullForNullInputs() {
+        // Assert
         assertNull(userMapper.toEntity((UserDto) null));
         assertNull(userMapper.toDto((User) null));
         assertNull(userMapper.toEntity((List<UserDto>) null));

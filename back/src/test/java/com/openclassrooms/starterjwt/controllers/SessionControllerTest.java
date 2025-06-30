@@ -13,26 +13,15 @@ import com.openclassrooms.starterjwt.utils.TestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import org.springframework.test.context.ActiveProfiles;
-
 
 public class SessionControllerTest extends YogaAppSpringBootTestFramework {
 
@@ -64,15 +53,11 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         userRepository.deleteAll();
     }
 
+    // ALL SESSIONS
     @Test
     void testFindAll() throws Exception {
         // GIVEN: a session saved in the database
-        Session session = Session.builder()
-                .name("Test Session")
-                .description("Ceci est une session de test")
-                .date(new Date())
-                .build();
-        savedSession = sessionRepository.save(session);
+        savedSession = testHelper.createSession();
 
         // WHEN: we perform a GET request to fetch all sessions
         mockMvc.perform(get("/api/session")
@@ -84,15 +69,11 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
                 .andExpect(jsonPath("$[-1].description").value("Ceci est une session de test"));
     }
 
+    // SESSIONS BY ID
     @Test
     void testFindByValidId() throws Exception {
         // GIVEN: a session saved in the database
-        Session session = Session.builder()
-                .name("Test Session")
-                .description("Ceci est une session de test")
-                .date(new Date())
-                .build();
-        savedSession = sessionRepository.save(session);
+        savedSession = testHelper.createSession();
 
         // WHEN: we perform a GET request to fetch the session by valid ID
         mockMvc.perform(get("/api/session/" + savedSession.getId())
@@ -104,6 +85,29 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
                 .andExpect(jsonPath("$.description").value("Ceci est une session de test"));
     }
 
+
+    @Test
+    public void testFindByIdInvalidInteger() throws Exception {
+        // Given
+        //When
+        mockMvc.perform(get("/api/session/invalid")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testFindByIdNotFound() throws Exception {
+        // Given
+        //When
+        mockMvc.perform(get("/api/session/1")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isNotFound());
+    }
+
+
+    // CREATE SESSION
     @Test
     void testCreateValidSession() throws Exception {
         // GIVEN: a teacher saved in the database and a session DTO ready to be posted
@@ -135,6 +139,20 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         assertEquals(countBefore + 1, sessionRepository.count());
     }
 
+    @Test
+    public void testCreateInvalidSession() throws Exception {
+        // Given
+        //When
+        mockMvc.perform(post("/api/session")
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                        .contentType("application/json")
+                        .content("{}"))
+                //Then
+                .andExpect(status().isBadRequest());
+    }
+
+
+    // UPDATE SESSION
     @Test
     void testUpdateValidSession() throws Exception {
         // GIVEN: an existing session and teacher saved in the database
@@ -176,14 +194,40 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     }
 
     @Test
+    public void testUpdateInvalidIntegerSession() throws Exception {
+        // Given
+        Teacher teacher = new Teacher();
+        teacher.setFirstName("Teacher");
+        teacher.setLastName("1");
+        teacher = teacherRepository.save(teacher);
+
+        Session session = new Session();
+        session.setName("Session 1");
+        session.setDate(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000));
+        session.setDescription("Description 1");
+        sessionRepository.save(session);
+
+        SessionDto sessionDto = new SessionDto();
+        sessionDto.setDate(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000));
+        sessionDto.setDescription("Description 2");
+        sessionDto.setName("Session 2");
+        sessionDto.setTeacher_id(teacher.getId());
+
+        //When
+        mockMvc.perform(put("/api/session/invalid")
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(sessionDto)))
+                //Then
+                .andExpect(status().isBadRequest());
+    }
+
+
+    // DELETE SESSION
+    @Test
     void testDeleteValidSession() throws Exception {
         // GIVEN: an existing session saved in the database
-        Session session = Session.builder()
-                .name("Session à supprimer")
-                .description("Description")
-                .date(new Date())
-                .build();
-        savedSession = sessionRepository.save(session);
+        savedSession = testHelper.createSession();
         Long sessionId = savedSession.getId();
 
         assertTrue(sessionRepository.findById(sessionId).isPresent());
@@ -198,6 +242,18 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         assertFalse(sessionRepository.findById(sessionId).isPresent());
     }
 
+    @Test
+    public void testDeleteInvalidIntegerSession() throws Exception {
+        // Given
+        //When
+        mockMvc.perform(delete("/api/session/invalid")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isBadRequest());
+    }
+
+
+    // PARTICIPATE
     @Test
     void testParticipateSessionValid() throws Exception {
         // GIVEN: a user saved in the database
@@ -228,6 +284,53 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     }
 
     @Test
+    public void testParticipateInvalidIntegerSession() throws Exception {
+        // Given
+        //When
+        mockMvc.perform(post("/api/session/invalid/participate/1")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testParticipateSessionInvalidIntegerUser() throws Exception {
+        // Given
+        //When
+        mockMvc.perform(post("/api/session/1/participate/invalid")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testParticipateNotFoundSession() throws Exception {
+        // Given
+        //When
+        mockMvc.perform(post("/api/session/1/participate/1")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testParticipateSessionNotFoundUser() throws Exception {
+        // Given
+        Session session = new Session();
+        session.setName("Session 1");
+        session.setDate(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000));
+        session.setDescription("Description 1");
+        session = sessionRepository.save(session);
+
+        //When
+        mockMvc.perform(post("/api/session/"+session.getId()+"/participate/1")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isNotFound());
+    }
+
+    // NO LONGER PARTICPATE
+    @Test
     void testNoLongerParticipateSessionValid() throws Exception {
         // GIVEN: a user saved in the database
         User user = testHelper.createAdminUser("admin@example.com");
@@ -254,6 +357,59 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         // THEN: the user is no longer in the session participants list
         Session updatedSession = sessionRepository.findById(session.getId()).orElseThrow(() -> new RuntimeException("Session not found"));
         assertEquals(0, updatedSession.getUsers().size());
+    }
+
+    @Test
+    public void testNoLongerParticipateInvalidIntegerSession() throws Exception {
+        // Given
+        //When
+        mockMvc.perform(delete("/api/session/invalid/participate/1")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testNoLongerParticipateSessionInvalidIntegerUser() throws Exception {
+        // Given
+        Session session = Session.builder()
+                .name("Session 1")
+                .date(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
+                .description("Description 1")
+                .build();
+        session = sessionRepository.save(session);
+
+        //When
+        mockMvc.perform(delete("/api/session/"+session.getId()+"/participate/invalid")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testNoLongerParticipateNotFoundSession() throws Exception {
+        // Given
+        //When
+        mockMvc.perform(delete("/api/session/1/participate/1")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testNoLongerParticipateSessionNotParticipatingUser() throws Exception {
+        // Given
+        Session session = new Session();
+        session.setName("Session 1");
+        session.setDate(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000));
+        session.setDescription("Description 1");
+        session = sessionRepository.save(session);
+
+        //When
+        mockMvc.perform(delete("/api/session/"+session.getId()+"/participate/100")
+                        .header("Authorization", "Bearer " + getAdminAccessToken()))
+                //Then
+                .andExpect(status().isBadRequest());
     }
 
 }
