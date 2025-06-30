@@ -5,6 +5,7 @@ import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -28,8 +29,13 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Value("${spring.jpa.database-platform}")
+    private String dialect;
+
     @Test
     public void findById() throws Exception {
+        System.out.println("Hibernate Dialect: " + dialect);
+
         User user = User.builder()
                 .email("admin@example.com")
                 .lastName("Doe")
