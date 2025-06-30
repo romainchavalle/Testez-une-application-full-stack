@@ -3,6 +3,7 @@ package com.openclassrooms.starterjwt.controllers;
 import com.openclassrooms.starterjwt.YogaAppSpringBootTestFramework;
 import com.openclassrooms.starterjwt.models.Teacher;
 import com.openclassrooms.starterjwt.repository.TeacherRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,11 @@ public class TeacherControllerTest extends YogaAppSpringBootTestFramework {
     TeacherRepository teacherRepository;
 
     private Teacher savedTeacher;
+
+    @AfterEach
+    public void cleanUp() {
+        teacherRepository.deleteAll();
+    }
 
     @Test
     public void getAllTeacher()  throws Exception {

@@ -3,6 +3,7 @@ package com.openclassrooms.starterjwt.controllers;
 import com.openclassrooms.starterjwt.YogaAppSpringBootTestFramework;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,12 +30,13 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${spring.jpa.database-platform}")
-    private String dialect;
+    @AfterEach
+    public void cleanUp() {
+        userRepository.deleteAll();
+    }
 
     @Test
     public void findById() throws Exception {
-        System.out.println("Hibernate Dialect: " + dialect);
 
         User user = User.builder()
                 .email("admin@example.com")

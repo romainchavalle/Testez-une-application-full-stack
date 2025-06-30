@@ -7,6 +7,7 @@ import com.openclassrooms.starterjwt.payload.request.SignupRequest;
 import com.openclassrooms.starterjwt.payload.response.JwtResponse;
 import com.openclassrooms.starterjwt.payload.response.MessageResponse;
 import com.openclassrooms.starterjwt.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,11 @@ public class AuthControllerTest extends YogaAppSpringBootTestFramework {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @AfterEach
+    public void cleanUp() {
+        userRepository.deleteAll();
+    }
 
     @Test
     public void registerUser_Success() throws Exception {

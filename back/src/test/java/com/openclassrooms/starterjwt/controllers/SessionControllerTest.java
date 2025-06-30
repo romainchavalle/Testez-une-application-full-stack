@@ -9,6 +9,7 @@ import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.SessionRepository;
 import com.openclassrooms.starterjwt.repository.TeacherRepository;
 import com.openclassrooms.starterjwt.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -52,6 +53,13 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     private Session savedSession;
     private Teacher savedTeacher;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @AfterEach
+    public void cleanUp() {
+        sessionRepository.deleteAll();
+        teacherRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     void shouldReturnSession() throws Exception {
