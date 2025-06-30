@@ -6,10 +6,8 @@ import com.openclassrooms.starterjwt.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,7 +15,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 public class UserControllerTest extends YogaAppSpringBootTestFramework {
 
@@ -37,7 +34,7 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
 
     @Test
     public void findById() throws Exception {
-
+        // Given: a user exists in the database
         User user = User.builder()
                 .email("admin@example.com")
                 .lastName("Doe")
@@ -47,18 +44,20 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
                 .build();
         user = userRepository.save(user);
 
-        mockMvc.perform(get("/api/user/"+ user.getId())
-                .header("Authorization", "Bearer " + getAdminAccessToken())
+        // When: performing GET request to retrieve the user by ID
+        mockMvc.perform(get("/api/user/" + user.getId())
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
+                // Then: the response contains the correct user details
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("admin@example.com"))
                 .andExpect(jsonPath("$.lastName").value("Doe"))
                 .andExpect(jsonPath("$.firstName").value("John"));
-
     }
 
     @Test
     public void deleteUser() throws Exception {
+        // Given: a user exists in the database
         User user = User.builder()
                 .email("admin@example.com")
                 .lastName("Doe")
@@ -69,13 +68,18 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
         user = userRepository.save(user);
         Long userId = user.getId();
 
+        // Ensure the user is present before deletion
         assertTrue(userRepository.findById(userId).isPresent());
 
-        mockMvc.perform(delete("/api/user/"+ user.getId())
+        // When: performing DELETE request to remove the user
+        mockMvc.perform(delete("/api/user/" + user.getId())
                         .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
+                // Then: the response status is OK
                 .andExpect(status().isOk());
 
+        // Then: the user should no longer exist in the database
         assertFalse(userRepository.findById(userId).isPresent());
     }
 }
+

@@ -62,7 +62,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     }
 
     @Test
-    void shouldReturnSession() throws Exception {
+    void testFindAll() throws Exception {
         // GIVEN
         Session session = Session.builder()
                 .name("Test Session")
@@ -81,7 +81,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     }
 
     @Test
-    void shouldReturnOneSession() throws Exception {
+    void testFindByValidId() throws Exception {
         // GIVEN - Crée des sessions en base
         Session session = Session.builder()
                 .name("Test Session")
@@ -100,7 +100,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     }
 
     @Test
-    void shouldCreateSession() throws Exception {
+    void testCreateValidSession() throws Exception {
         Teacher teacher = Teacher.builder()
                 .firstName("Jean")
                 .lastName("Dupont")
@@ -135,7 +135,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     }
 
     @Test
-    void shouldUpdateSession() throws Exception {
+    void testUpdateValidSession() throws Exception {
         // GIVEN : une session et un enseignant existent déjà
         Teacher teacher = Teacher.builder()
                 .firstName("Jean")
@@ -176,7 +176,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     }
 
     @Test
-    void shouldDeleteSession() throws Exception {
+    void testDeleteValidSession() throws Exception {
         // GIVEN - Une session existante à supprimer
         Session session = Session.builder()
                 .name("Session à supprimer")
@@ -197,7 +197,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     }
 
     @Test
-    void shouldAddUserToSession() throws Exception {
+    void testParticipateSessionValid() throws Exception {
         // GIVEN : Un utilisateur
         User user = User.builder()
                 .email("admin@example.com")
@@ -234,7 +234,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     }
 
     @Test
-    void shouldRemoveUserFromSession() throws Exception {
+    void testNoLongerParticipateSessionValid() throws Exception {
         // Crée et sauve un utilisateur
         User user = User.builder()
                 .email("admin@example.com")
