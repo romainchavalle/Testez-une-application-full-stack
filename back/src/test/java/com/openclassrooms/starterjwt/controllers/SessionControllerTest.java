@@ -9,6 +9,7 @@ import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.SessionRepository;
 import com.openclassrooms.starterjwt.repository.TeacherRepository;
 import com.openclassrooms.starterjwt.repository.UserRepository;
+import com.openclassrooms.starterjwt.utils.TestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,9 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TestHelper testHelper;
+
     private Session savedSession;
     private Teacher savedTeacher;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -60,6 +64,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         teacherRepository.deleteAll();
         userRepository.deleteAll();
     }
+
     @Test
     void testFindAll() throws Exception {
         // GIVEN: a session saved in the database
@@ -205,14 +210,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     @Test
     void testParticipateSessionValid() throws Exception {
         // GIVEN: a user saved in the database
-        User user = User.builder()
-                .email("admin@example.com")
-                .lastName("Doe")
-                .firstName("John")
-                .password(passwordEncoder.encode("password"))
-                .admin(true)
-                .build();
-        user = userRepository.save(user);
+        User user = testHelper.createAdminUser("admin@example.com");
 
         // AND: a session saved in the database without participants
         Session session = Session.builder()
@@ -232,24 +230,16 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         // THEN: the user is added to the session participants list in the database
         Session updatedSession = sessionRepository.findById(session.getId()).orElseThrow(() -> new RuntimeException("Session not found"));
 
-        User finalUser = user;
         boolean isParticipant = updatedSession.getUsers()
                 .stream()
-                .anyMatch(u -> u.getId().equals(finalUser.getId()));
+                .anyMatch(u -> u.getId().equals(user.getId()));
         assertTrue(isParticipant);
     }
 
     @Test
     void testNoLongerParticipateSessionValid() throws Exception {
         // GIVEN: a user saved in the database
-        User user = User.builder()
-                .email("admin@example.com")
-                .lastName("Doe")
-                .firstName("John")
-                .password(passwordEncoder.encode("password"))
-                .admin(true)
-                .build();
-        user = userRepository.save(user);
+        User user = testHelper.createAdminUser("admin@example.com");
 
         // AND: a session saved in the database with the user as participant
         Session session = Session.builder()
@@ -274,7 +264,5 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         Session updatedSession = sessionRepository.findById(session.getId()).orElseThrow(() -> new RuntimeException("Session not found"));
         assertEquals(0, updatedSession.getUsers().size());
     }
-
-
 
 }

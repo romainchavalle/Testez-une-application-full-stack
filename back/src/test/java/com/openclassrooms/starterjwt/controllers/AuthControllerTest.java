@@ -5,6 +5,7 @@ import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.payload.request.LoginRequest;
 import com.openclassrooms.starterjwt.payload.request.SignupRequest;
 import com.openclassrooms.starterjwt.repository.UserRepository;
+import com.openclassrooms.starterjwt.utils.TestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class AuthControllerTest extends YogaAppSpringBootTestFramework {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private TestHelper testHelper;
 
     @AfterEach
     public void cleanUp() {
@@ -58,18 +62,11 @@ public class AuthControllerTest extends YogaAppSpringBootTestFramework {
     @Test
     public void authenticateUser_Success() throws Exception {
         // Given: an existing user in the database
-        User u = User.builder()
-                .email("login@example.com")
-                .firstName("Charlie")
-                .lastName("Brown")
-                .password(passwordEncoder.encode("mypassword"))
-                .admin(false)
-                .build();
-        userRepository.save(u);
+        User user = testHelper.createAdminUser("admin@example.com");
 
         LoginRequest login = new LoginRequest();
-        login.setEmail("login@example.com");
-        login.setPassword("mypassword");
+        login.setEmail("admin@example.com");
+        login.setPassword("password");
 
         // When: the login endpoint is called with correct credentials
         mockMvc.perform(post("/api/auth/login")
@@ -78,11 +75,11 @@ public class AuthControllerTest extends YogaAppSpringBootTestFramework {
                 // Then: the response contains a valid JWT and user details
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").isNotEmpty())
-                .andExpect(jsonPath("$.id").value(u.getId()))
-                .andExpect(jsonPath("$.username").value("login@example.com"))
-                .andExpect(jsonPath("$.firstName").value("Charlie"))
-                .andExpect(jsonPath("$.lastName").value("Brown"))
-                .andExpect(jsonPath("$.admin").value(false));
+                .andExpect(jsonPath("$.id").value(user.getId()))
+                .andExpect(jsonPath("$.username").value("admin@example.com"))
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Doe"))
+                .andExpect(jsonPath("$.admin").value(true));
     }
 
     @Test

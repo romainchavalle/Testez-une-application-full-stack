@@ -3,6 +3,7 @@ package com.openclassrooms.starterjwt.controllers;
 import com.openclassrooms.starterjwt.YogaAppSpringBootTestFramework;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.UserRepository;
+import com.openclassrooms.starterjwt.utils.TestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,22 +28,19 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TestHelper testHelper;
+
     @AfterEach
     public void cleanUp() {
         userRepository.deleteAll();
     }
 
+
     @Test
     public void findById() throws Exception {
         // Given: a user exists in the database
-        User user = User.builder()
-                .email("admin@example.com")
-                .lastName("Doe")
-                .firstName("John")
-                .password(passwordEncoder.encode("password"))
-                .admin(true)
-                .build();
-        user = userRepository.save(user);
+        User user = testHelper.createAdminUser("admin@example.com");
 
         // When: performing GET request to retrieve the user by ID
         mockMvc.perform(get("/api/user/" + user.getId())
@@ -58,14 +56,7 @@ public class UserControllerTest extends YogaAppSpringBootTestFramework {
     @Test
     public void deleteUser() throws Exception {
         // Given: a user exists in the database
-        User user = User.builder()
-                .email("admin@example.com")
-                .lastName("Doe")
-                .firstName("John")
-                .password(passwordEncoder.encode("password"))
-                .admin(true)
-                .build();
-        user = userRepository.save(user);
+        User user = testHelper.createAdminUser("admin@example.com");
         Long userId = user.getId();
 
         // Ensure the user is present before deletion
