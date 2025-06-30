@@ -55,7 +55,6 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     private TestHelper testHelper;
 
     private Session savedSession;
-    private Teacher savedTeacher;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @AfterEach
@@ -108,11 +107,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     @Test
     void testCreateValidSession() throws Exception {
         // GIVEN: a teacher saved in the database and a session DTO ready to be posted
-        Teacher teacher = Teacher.builder()
-                .firstName("Jean")
-                .lastName("Dupont")
-                .build();
-        savedTeacher = teacherRepository.save(teacher);
+        Teacher savedTeacher = testHelper.createTeacher("Jean", "Dupont");
 
         SessionDto dto = new SessionDto();
         dto.setName("Nouvelle Session");
@@ -143,11 +138,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
     @Test
     void testUpdateValidSession() throws Exception {
         // GIVEN: an existing session and teacher saved in the database
-        Teacher teacher = Teacher.builder()
-                .firstName("Jean")
-                .lastName("Dupont")
-                .build();
-        savedTeacher = teacherRepository.save(teacher);
+        Teacher savedTeacher = testHelper.createTeacher("Jean", "Dupont");
 
         Session session = Session.builder()
                 .name("Ancienne Session")

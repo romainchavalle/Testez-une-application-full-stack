@@ -24,7 +24,6 @@ public class TeacherControllerTest extends YogaAppSpringBootTestFramework {
     @Autowired
     private TestHelper testHelper;
 
-    private Teacher savedTeacher;
 
     @AfterEach
     public void cleanUp() {
