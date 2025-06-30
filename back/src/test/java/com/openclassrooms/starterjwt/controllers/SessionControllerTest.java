@@ -60,10 +60,9 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         teacherRepository.deleteAll();
         userRepository.deleteAll();
     }
-
     @Test
     void testFindAll() throws Exception {
-        // GIVEN
+        // GIVEN: a session saved in the database
         Session session = Session.builder()
                 .name("Test Session")
                 .description("Ceci est une session de test")
@@ -71,18 +70,19 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
                 .build();
         savedSession = sessionRepository.save(session);
 
+        // WHEN: we perform a GET request to fetch all sessions
         mockMvc.perform(get("/api/session")
                         .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
+                // THEN: the response contains the saved session with correct name and description
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[-1].name").value("Test Session"))
                 .andExpect(jsonPath("$[-1].description").value("Ceci est une session de test"));
-
     }
 
     @Test
     void testFindByValidId() throws Exception {
-        // GIVEN - Crée des sessions en base
+        // GIVEN: a session saved in the database
         Session session = Session.builder()
                 .name("Test Session")
                 .description("Ceci est une session de test")
@@ -90,17 +90,19 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
                 .build();
         savedSession = sessionRepository.save(session);
 
+        // WHEN: we perform a GET request to fetch the session by valid ID
         mockMvc.perform(get("/api/session/" + savedSession.getId())
                         .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
+                // THEN: the response contains the correct session details
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Test Session"))
                 .andExpect(jsonPath("$.description").value("Ceci est une session de test"));
-
     }
 
     @Test
     void testCreateValidSession() throws Exception {
+        // GIVEN: a teacher saved in the database and a session DTO ready to be posted
         Teacher teacher = Teacher.builder()
                 .firstName("Jean")
                 .lastName("Dupont")
@@ -115,12 +117,13 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
 
         long countBefore = sessionRepository.count();
 
-        // WHEN : appel POST
+        // WHEN: we perform a POST request to create a new session
         mockMvc.perform(post("/api/session")
-                .header("Authorization", "Bearer " + getAdminAccessToken())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
+                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto))
                 )
+                // THEN: the response is OK and contains the created session data
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
@@ -128,15 +131,13 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
                 .andExpect(jsonPath("$.description").value("Description de la nouvelle session"))
                 .andExpect(jsonPath("$.teacher_id").value(savedTeacher.getId()));
 
-
-        // ET : on a bien créé une ligne de plus
+        // AND THEN: the session count in the database has increased by one
         assertEquals(countBefore + 1, sessionRepository.count());
-
     }
 
     @Test
     void testUpdateValidSession() throws Exception {
-        // GIVEN : une session et un enseignant existent déjà
+        // GIVEN: an existing session and teacher saved in the database
         Teacher teacher = Teacher.builder()
                 .firstName("Jean")
                 .lastName("Dupont")
@@ -158,18 +159,21 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         updatedDto.setDate(new Date());
         updatedDto.setTeacher_id(savedTeacher.getId());
 
+        // WHEN: we perform a PUT request to update the session
         mockMvc.perform(
-                put("/api/session/" + savedSession.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedDto))
-                        .header("Authorization", "Bearer " + getAdminAccessToken())
+                        put("/api/session/" + savedSession.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updatedDto))
+                                .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
+                // THEN: the response is OK and contains the updated session data
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedSession.getId()))
                 .andExpect(jsonPath("$.name").value("Session Modifiée"))
                 .andExpect(jsonPath("$.description").value("Nouvelle description"))
                 .andExpect(jsonPath("$.teacher_id").value(savedTeacher.getId()));
 
+        // AND THEN: the session in the database is updated accordingly
         Session updatedSession = sessionRepository.findById(savedSession.getId()).orElseThrow(() -> new RuntimeException("Session not found"));
         assertEquals("Session Modifiée", updatedSession.getName());
         assertEquals("Nouvelle description", updatedSession.getDescription());
@@ -177,7 +181,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
 
     @Test
     void testDeleteValidSession() throws Exception {
-        // GIVEN - Une session existante à supprimer
+        // GIVEN: an existing session saved in the database
         Session session = Session.builder()
                 .name("Session à supprimer")
                 .description("Description")
@@ -188,9 +192,11 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
 
         assertTrue(sessionRepository.findById(sessionId).isPresent());
 
+        // WHEN: we perform a DELETE request to remove the session
         mockMvc.perform(delete("/api/session/" + sessionId)
                         .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
+                // THEN: the response is OK and the session is deleted from the database
                 .andExpect(status().isOk());
 
         assertFalse(sessionRepository.findById(sessionId).isPresent());
@@ -198,7 +204,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
 
     @Test
     void testParticipateSessionValid() throws Exception {
-        // GIVEN : Un utilisateur
+        // GIVEN: a user saved in the database
         User user = User.builder()
                 .email("admin@example.com")
                 .lastName("Doe")
@@ -208,7 +214,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
                 .build();
         user = userRepository.save(user);
 
-        // ET une session
+        // AND: a session saved in the database without participants
         Session session = Session.builder()
                 .name("Session Participation")
                 .description("Participate Test")
@@ -217,13 +223,13 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
                 .build();
         session = sessionRepository.save(session);
 
-        // WHEN : l’utilisateur participe
+        // WHEN: the user participates in the session via POST request
         mockMvc.perform(post("/api/session/" + session.getId() + "/participate/" + user.getId())
                         .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
                 .andExpect(status().isOk());
 
-        // THEN : l’utilisateur est bien dans la session
+        // THEN: the user is added to the session participants list in the database
         Session updatedSession = sessionRepository.findById(session.getId()).orElseThrow(() -> new RuntimeException("Session not found"));
 
         User finalUser = user;
@@ -235,7 +241,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
 
     @Test
     void testNoLongerParticipateSessionValid() throws Exception {
-        // Crée et sauve un utilisateur
+        // GIVEN: a user saved in the database
         User user = User.builder()
                 .email("admin@example.com")
                 .lastName("Doe")
@@ -245,7 +251,7 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
                 .build();
         user = userRepository.save(user);
 
-        // Crée et sauve une session avec ce user dans la liste
+        // AND: a session saved in the database with the user as participant
         Session session = Session.builder()
                 .name("Session à tester")
                 .description("session avec user")
@@ -255,16 +261,16 @@ public class SessionControllerTest extends YogaAppSpringBootTestFramework {
         session.getUsers().add(user);
         session = sessionRepository.save(session);
 
-        // Assure que le user est bien lié
+        // Ensure the user is initially a participant
         assertEquals(1, sessionRepository.findById(session.getId()).get().getUsers().size());
 
-        // Appelle le DELETE /api/session/{id}/participate/{userId}
+        // WHEN: the user is removed from the session participants via DELETE request
         mockMvc.perform(delete("/api/session/" + session.getId() + "/participate/" + user.getId())
                         .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
                 .andExpect(status().isOk());
 
-        // Recharge la session pour vérifier que le user a bien été retiré
+        // THEN: the user is no longer in the session participants list
         Session updatedSession = sessionRepository.findById(session.getId()).orElseThrow(() -> new RuntimeException("Session not found"));
         assertEquals(0, updatedSession.getUsers().size());
     }
