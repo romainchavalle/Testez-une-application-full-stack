@@ -3,6 +3,7 @@ package com.openclassrooms.starterjwt.controllers;
 import com.openclassrooms.starterjwt.YogaAppSpringBootTestFramework;
 import com.openclassrooms.starterjwt.models.Teacher;
 import com.openclassrooms.starterjwt.repository.TeacherRepository;
+import com.openclassrooms.starterjwt.utils.TestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class TeacherControllerTest extends YogaAppSpringBootTestFramework {
     @Autowired
     TeacherRepository teacherRepository;
 
+    @Autowired
+    private TestHelper testHelper;
+
     private Teacher savedTeacher;
 
     @AfterEach
@@ -30,11 +34,7 @@ public class TeacherControllerTest extends YogaAppSpringBootTestFramework {
     @Test
     public void getAllTeacher() throws Exception {
         // Given: a teacher exists in the database
-        Teacher teacher = Teacher.builder()
-                .firstName("Jean")
-                .lastName("Dupont")
-                .build();
-        savedTeacher = teacherRepository.save(teacher);
+        Teacher teacher = testHelper.createTeacher("Jean", "Dupont");
 
         // When: performing GET request to retrieve all teachers
         mockMvc.perform(get("/api/teacher")
@@ -49,14 +49,10 @@ public class TeacherControllerTest extends YogaAppSpringBootTestFramework {
     @Test
     public void getTeacher() throws Exception {
         // Given: a teacher exists in the database
-        Teacher teacher = Teacher.builder()
-                .firstName("Jean")
-                .lastName("Dupont")
-                .build();
-        savedTeacher = teacherRepository.save(teacher);
+        Teacher teacher = testHelper.createTeacher("Jean", "Dupont");
 
         // When: performing GET request to retrieve the teacher by ID
-        mockMvc.perform(get("/api/teacher/" + savedTeacher.getId())
+        mockMvc.perform(get("/api/teacher/" + teacher.getId())
                         .header("Authorization", "Bearer " + getAdminAccessToken())
                 )
                 // Then: the response contains the correct teacher details
