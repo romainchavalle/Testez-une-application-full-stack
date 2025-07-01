@@ -14,7 +14,7 @@
             <span class="ml1">Delete</span>
           </button>
           <div *ngIf="!isAdmin">
-            <button *ngIf="!isParticipate" mat-raised-button color="primary" (click)="participate()">
+            <button *ngIf="!isParticipate" mat-raised-button color="primary" data-testid="participate-button" (click)="participate()">
               <mat-icon>person_add</mat-icon>
               <span class="ml1">Participate</span>
             </button>

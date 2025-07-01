@@ -105,6 +105,34 @@ describe("me spec", () => {
     cy.contains('email@email.com').should('exist');
 
   });
+
+  it('should delete user', () => {
+    cy.login();
+
+    cy.intercept('GET', '/api/user/1', {
+        body: {
+          id: 1,
+          username: 'userName',
+          firstName: 'firstName',
+          lastName: 'lastName',
+          email: 'email@email.com',
+          admin: false
+        },
+      });
+
+    cy.intercept('DELETE', '/api/user/1', {
+      });
+
+    // click sur le btn acoount
+    cy.get('[data-testid="account-button"]').click();
+
+    // Vérifier page detail
+    cy.url().should('include', '/me');
+
+    cy.get('[data-testid="delete-button"]').click();
+
+    cy.contains('Your account has been deleted !').should('be.visible');
+  })
 });
 
 
@@ -230,6 +258,70 @@ describe("detail spec", () => {
     cy.get('[data-testid="delete-button"]').should('exist')
 
   })
+
+  it('should participate to session', () => {
+    // Log in
+    cy.visit('/login')
+
+    cy.intercept('POST', '/api/auth/login', {
+      body: {
+        id: 1,
+        username: 'userName',
+        firstName: 'firstName',
+        lastName: 'lastName',
+        admin: false
+      },
+    })
+
+    // Mock the sessions data
+    const originalSessions = [
+      {
+        id: 1,
+        name: 'Yoga du matin',
+        date: '2025-06-04T10:00:00Z',
+        description: 'Séance de yoga relaxante'
+      },
+      {
+        id: 2,
+        name: 'Pilates',
+        date: '2025-06-05T17:00:00Z',
+        description: 'Travail du centre du corps'
+      }
+    ];
+
+    cy.intercept('GET', '**/api/session', (req) => {
+      req.reply({
+        statusCode: 200,
+        body: originalSessions
+      });
+    }).as('getSessions');
+
+    cy.get('input[formControlName=email]').type("yoga@studio.com")
+    cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`)
+
+    cy.url().should('include', '/sessions')
+
+    cy.intercept('GET', '/api/session/1', {
+      id: 1,
+      name: 'Session 1',
+      description: 'Description 1',
+      date: '2025-06-04T10:00:00Z',
+      teacher_id: 1,
+      users: [],
+    });
+
+    cy.intercept('POST', '/api/session/1/participate/1', {
+    })
+
+    // click sur le detail
+    cy.get('[data-testid="detail-button"]').first().click();
+
+    // Vérifier page detail
+    cy.url().should('include', '/detail');
+
+    cy.get('[data-testid="participate-button"]').first().click();
+
+  })
 })
 
 
@@ -330,3 +422,10 @@ describe('form spec edit session', () => {
 
   });
 });
+
+describe('not-found spec', () => {
+  it('should display the not found page on unknown route', () => {
+    cy.visit('/une-route-qui-nexiste-pas');
+    cy.contains('Page not found !');
+  });
+})
