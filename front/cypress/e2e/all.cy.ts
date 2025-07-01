@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 
+
 describe('Login spec', () => {
   it('Login successfull', () => {
     cy.visit('/login')
@@ -136,7 +137,7 @@ describe("me spec", () => {
 });
 
 
-describe("me spec", () => {
+describe("Logout spec", () => {
   it('should logout', () => {
     // Log in
     cy.login();
@@ -153,7 +154,7 @@ describe("me spec", () => {
 });
 
 
-describe('form spec create session', () => {
+describe('create session spec', () => {
   it('should admin can create a new session', () => {
     // Log in
     cy.login();
@@ -177,7 +178,7 @@ describe('form spec create session', () => {
 })
 
 
-describe("delete spec", () => {
+describe("delete session spec", () => {
   it('should delete the session selected', () => {
 
     // Log in
@@ -220,7 +221,7 @@ describe("delete spec", () => {
   });
 });
 
-describe("detail spec", () => {
+describe("detail session spec", () => {
   it('should display right informations', () => {
 
     // Log in
@@ -325,7 +326,7 @@ describe("detail spec", () => {
 })
 
 
-describe("list spec", () => {
+describe("list sessions spec", () => {
   it("should display sessions", () => {
 
     // Mock the sessions data
@@ -372,7 +373,7 @@ describe("list spec", () => {
 });
 
 
-describe('form spec edit session', () => {
+describe('edit session spec', () => {
 
   it('should admin can update an existing session', () => {
     cy.login();
