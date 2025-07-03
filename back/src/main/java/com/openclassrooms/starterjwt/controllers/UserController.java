@@ -51,6 +51,8 @@ public class UserController {
 
             UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+            System.out.println("bonjourrr" + userDetails.getUsername());
+
             if(!Objects.equals(userDetails.getUsername(), user.getEmail())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }

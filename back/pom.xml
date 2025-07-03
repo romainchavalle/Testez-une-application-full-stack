@@ -71,6 +71,12 @@
         </dependency>
 
 		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
 			<version>1.5.1.Final</version>
@@ -105,6 +111,13 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.5</version>
+				<configuration>
+					<excludes>
+						<exclude>com/openclassrooms/starterjwt/dto/*</exclude>
+						<exclude>com/openclassrooms/starterjwt/payload/**/*</exclude>
+						<exclude>com/openclassrooms/starterjwt/models/*</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>

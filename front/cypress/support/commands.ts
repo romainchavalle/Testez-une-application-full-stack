@@ -41,3 +41,59 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+
+Cypress.Commands.add('login', () => {
+
+  cy.visit('/login')
+
+  cy.intercept('POST', '/api/auth/login', {
+    body: {
+      id: 1,
+      username: 'userName',
+      firstName: 'firstName',
+      lastName: 'lastName',
+      admin: true
+    },
+  })
+
+  // Mock the sessions data
+  const originalSessions = [
+    {
+      id: 1,
+      name: 'Yoga du matin',
+      date: '2025-06-04T10:00:00Z',
+      description: 'Séance de yoga relaxante'
+    },
+    {
+      id: 2,
+      name: 'Pilates',
+      date: '2025-06-05T17:00:00Z',
+      description: 'Travail du centre du corps'
+    }
+  ];
+
+  cy.intercept('GET', '**/api/session', (req) => {
+    req.reply({
+      statusCode: 200,
+      body: originalSessions
+    });
+  }).as('getSessions');
+
+  cy.get('input[formControlName=email]').type("yoga@studio.com")
+  cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`)
+
+  cy.url().should('include', '/sessions')
+
+});
+
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      login(): Chainable<void>;
+    }
+  }
+}
+
+export {};

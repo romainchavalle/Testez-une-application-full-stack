@@ -5,9 +5,14 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { expect } from '@jest/globals';
 
 import { AppComponent } from './app.component';
+import { SessionService } from './services/session.service';
 
 
 describe('AppComponent', () => {
+  const sessionServiceMock = {
+    logOut: jest.fn()
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -18,6 +23,9 @@ describe('AppComponent', () => {
       declarations: [
         AppComponent
       ],
+      providers: [
+        { provide: SessionService, useValue: sessionServiceMock}
+      ]
     }).compileComponents();
   });
 
@@ -26,4 +34,15 @@ describe('AppComponent', () => {
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
+
+  it('should call the logout method', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+
+    // When
+    app.logout();
+
+    // Then
+    expect(sessionServiceMock.logOut).toHaveBeenCalled();
+  })
 });
